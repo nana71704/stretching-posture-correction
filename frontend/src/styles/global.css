@@ -1,0 +1,9 @@
+@import 'pretendard/dist/web/static/pretendard.css';
+@import './tokens.css';
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-base);
+}
