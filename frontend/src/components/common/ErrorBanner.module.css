@@ -1,0 +1,13 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fff7ed;
+  border: 1px solid var(--color-incorrect);
+  border-radius: var(--radius);
+}
+.message {
+  flex: 1;
+  margin: 0;
+}
