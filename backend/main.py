@@ -20,11 +20,14 @@ app = FastAPI(
 )
 
 # React 프론트엔드 연동을 위한 CORS 설정
+# Vite 개발 서버 5173, 5174 포트 모두 허용
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
     ],
     allow_credentials=False,
     allow_methods=["GET", "POST", "OPTIONS"],
@@ -379,4 +382,5 @@ def get_stats_summary():
         "success_rate": success_rate,
         "average_score": round(row["average_score"], 2)
     }
+
 
