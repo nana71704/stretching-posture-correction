@@ -1,0 +1,26 @@
+.card {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.clickable {
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.clickable:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.08);
+}
+.clickable:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}

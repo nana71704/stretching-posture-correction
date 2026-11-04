@@ -1,0 +1,11 @@
+:root {
+  --color-primary: #2563eb;
+  --color-correct: #16a34a;
+  --color-incorrect: #ea580c;
+  --color-undetected: #9ca3af;
+  --color-text: #111827;
+  --color-bg: #f9fafb;
+  --font-base: Pretendard, sans-serif;
+  --font-feedback: 700 28px var(--font-base);
+  --radius: 12px;
+}

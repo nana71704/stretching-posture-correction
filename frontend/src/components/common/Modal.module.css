@@ -1,0 +1,26 @@
+.dialog {
+  box-sizing: border-box;
+  width: min(480px, 90vw);
+  padding: 24px;
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: 0 20px 40px rgb(0 0 0 / 0.2);
+  color: var(--color-text);
+  font-family: var(--font-base);
+}
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+.title {
+  margin: 0 0 12px;
+  font-size: 22px;
+}
+.body {
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
