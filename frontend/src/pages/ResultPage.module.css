@@ -1,0 +1,50 @@
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+.title {
+  margin: 0 0 8px;
+}
+.meta {
+  margin: 0 0 24px;
+  color: #6b7280;
+}
+.verdict {
+  margin: 0 0 24px;
+  font-size: 28px;
+  font-weight: 700;
+}
+.success {
+  color: var(--color-correct);
+}
+.fail {
+  color: var(--color-incorrect);
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.statLabel {
+  display: block;
+  margin-bottom: 8px;
+  color: #6b7280;
+}
+.statValue {
+  font-size: 32px;
+  font-weight: 700;
+}
+.notice {
+  margin: 0 0 32px;
+  padding: 32px;
+  background: #fff;
+  border-radius: var(--radius);
+  text-align: center;
+  color: #6b7280;
+}
+.actions {
+  display: flex;
+  gap: 12px;
+}

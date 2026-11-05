@@ -1,0 +1,98 @@
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ---------- 요약 통계 ---------- */
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 16px 0 32px;
+}
+.summaryItem {
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius);
+  text-align: center;
+}
+.summaryItem dt {
+  color: #6b7280;
+}
+.summaryItem dd {
+  margin: 8px 0 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+/* ---------- 기록 목록 ---------- */
+.list {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.row {
+  display: grid;
+  grid-template-columns: 170px 1fr 90px 80px;
+  align-items: center;
+  gap: 16px;
+}
+.date {
+  color: #6b7280;
+}
+.name {
+  font-weight: 700;
+}
+.duration {
+  text-align: right;
+}
+.tag {
+  justify-self: end;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+.success {
+  background: var(--color-correct);
+}
+.fail {
+  background: var(--color-incorrect);
+}
+.muted {
+  background: var(--color-undetected);
+}
+
+/* ---------- 빈 목록·로딩 ---------- */
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: 48px;
+  color: #6b7280;
+}
+.skeleton {
+  height: 64px;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}

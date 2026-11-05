@@ -1,4 +1,3 @@
-
 import { MOCK_STRETCHES } from './mock/stretches';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
@@ -9,7 +8,7 @@ export class ApiError extends Error {
   constructor(message, status) {
     super(message);
     this.name = 'ApiError';
-    this.status = status;
+    this.status = status; // 0 = 서버에 닿지 못함 (서버 꺼짐, CORS 등)
   }
 }
 
@@ -20,28 +19,23 @@ async function request(path, { method = 'GET', body } = {}) {
   try {
     res = await fetch(`${BASE_URL}${path}`, {
       method,
-      headers: body !== undefined
-        ? { 'Content-Type': 'application/json' }
-        : undefined,
-      body: body !== undefined
-        ? JSON.stringify(body)
-        : undefined,
+      headers: body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch {
-    throw new ApiError(
-      '서버에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.',
-      0
-    );
+    throw new ApiError('서버에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.', 0);
   }
 
   const data = await res.json().catch(() => null);
 
   if (!res.ok) {
-    const message =
-      typeof data?.detail === 'string'
-        ? data.detail
-        : data?.error ??
-          `요청에 실패했어요 (${res.status})`;
+    //   FastAPI 오류는 { "detail": ... }
+    //   - 400·404·409: detail이 문자열 → 그대로 표시
+    //   - 422(입력 형식 오류): detail이 배열 → 정해 둔 문구
+    let message = `요청에 실패했어요 (${res.status})`;
+    if (typeof data?.detail === 'string') message = data.detail;
+    else if (res.status === 422) message = '입력 값이 올바르지 않아요.';
+    else if (data?.error) message = data.error;
 
     throw new ApiError(message, res.status);
   }
@@ -51,9 +45,7 @@ async function request(path, { method = 'GET', body } = {}) {
 
 // Mock 데이터 응답
 function mock(data, ms = 500) {
-  return new Promise((resolve) =>
-    setTimeout(() => resolve(structuredClone(data)), ms)
-  );
+  return new Promise((resolve) => setTimeout(() => resolve(structuredClone(data)), ms));
 }
 
 // ==========================================
@@ -76,15 +68,9 @@ export function getStretches() {
 
 export function getStretch(id) {
   if (USE_MOCK) {
-    const found = MOCK_STRETCHES.find(
-      (s) => s.id === Number(id)
-    );
+    const found = MOCK_STRETCHES.find((s) => s.id === Number(id));
 
-    return found
-      ? mock(found)
-      : Promise.reject(
-          new ApiError('스트레칭을 찾을 수 없어요.', 404)
-        );
+    return found ? mock(found) : Promise.reject(new ApiError('스트레칭을 찾을 수 없어요.', 404));
   }
 
   return request(`/api/stretches/${id}`);
@@ -117,11 +103,7 @@ export function createSession(stretchId) {
 // POST /api/sessions/{session_id}/complete
 // ==========================================
 
-export function completeSession(
-  sessionId,
-  durationSeconds,
-  correctSeconds
-) {
+export function completeSession(sessionId, durationSeconds, correctSeconds) {
   return request(`/api/sessions/${sessionId}/complete`, {
     method: 'POST',
     body: {
@@ -149,18 +131,31 @@ export function getSessions() {
   return request('/api/sessions');
 }
 
-
- // ==========================================
- // 7. 스트레칭 종류별 통계 조회
- // GET /api/stats/stretches
- // ==========================================
+// ==========================================
+// 7. 스트레칭 종류별 통계 조회
+// GET /api/stats/stretches
+// ==========================================
 
 export function getStretchStats() {
   return request('/api/stats/stretches');
 }
 
+// ==========================================
+// 8. 운동 세션 취소
+// POST /api/sessions/{session_id}/cancel
+// ==========================================
+
 export function cancelSession(sessionId) {
   return request(`/api/sessions/${sessionId}/cancel`, {
     method: 'POST',
   });
+}
+
+// ==========================================
+// 9. 전체 운동 통계 (UI-06 요약)
+// GET /api/stats/summary
+// ==========================================
+
+export function getStatsSummary() {
+  return request('/api/stats/summary');
 }
