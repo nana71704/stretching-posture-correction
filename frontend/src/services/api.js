@@ -158,3 +158,9 @@ export function getSessions() {
 export function getStretchStats() {
   return request('/api/stats/stretches');
 }
+
+export function cancelSession(sessionId) {
+  return request(`/api/sessions/${sessionId}/cancel`, {
+    method: 'POST',
+  });
+}
