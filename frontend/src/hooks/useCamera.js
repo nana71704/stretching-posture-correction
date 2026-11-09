@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 // 브라우저 오류 이름 → 화면에서 쓸 상태 이름
@@ -6,71 +7,121 @@ function toCameraStatus(err) {
     case 'NotAllowedError':
     case 'SecurityError':
       return 'denied'; // 권한 거부
+
     case 'NotFoundError':
     case 'OverconstrainedError':
       return 'notfound'; // 카메라 없음
+
     case 'NotReadableError':
     case 'AbortError':
       return 'busy'; // 다른 프로그램이 사용 중
+
     default:
       return 'error';
   }
 }
 
-// status: 'requesting' | 'ready' | 'denied' | 'notfound' | 'busy' | 'error'
+// status:
+// 'requesting' | 'ready' | 'denied'
+// 'notfound' | 'busy' | 'error'
 export default function useCamera() {
   const streamRef = useRef(null);
   const videoElRef = useRef(null);
   const mountedRef = useRef(false);
+
   const [status, setStatus] = useState('requesting');
 
+  // 카메라 스트림 종료
   const stop = useCallback(() => {
-    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current?.getTracks().forEach((track) => {
+      track.stop();
+    });
+
     streamRef.current = null;
-    if (videoElRef.current) videoElRef.current.srcObject = null;
+
+    if (videoElRef.current) {
+      videoElRef.current.srcObject = null;
+    }
   }, []);
 
+  // 카메라 실행
   const start = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: 'user',
+        },
         audio: false,
       });
-      // 응답이 오기 전에 화면을 떠났으면 바로 끈다
+
+      // 카메라 응답 전에 화면을 떠났다면 즉시 종료
       if (!mountedRef.current) {
-        stream.getTracks().forEach((track) => track.stop());
+        stream.getTracks().forEach((track) => {
+          track.stop();
+        });
         return;
       }
-      stop(); // 이전 스트림이 있으면 정리
+
+      // 기존 카메라 스트림 정리
+      stop();
+
       streamRef.current = stream;
-      if (videoElRef.current) videoElRef.current.srcObject = stream;
+
+      // video 요소에 카메라 영상 연결
+      if (videoElRef.current) {
+        videoElRef.current.srcObject = stream;
+      }
+
       setStatus('ready');
     } catch (err) {
-      if (mountedRef.current) setStatus(toCameraStatus(err));
+      if (mountedRef.current) {
+        setStatus(toCameraStatus(err));
+      }
     }
   }, [stop]);
 
-  // [다시 시도] 버튼용
+  // 카메라 다시 시도
   const retry = useCallback(() => {
     setStatus('requesting');
     start();
   }, [start]);
 
-  // <video ref={videoRef}>에 붙이는 "콜백 ref"
-  // video가 나중에 그려져도(로딩 후 등) 스트림이 자동으로 연결됨
+  // React <video> 요소 연결용 콜백 ref
   const videoRef = useCallback((el) => {
     videoElRef.current = el;
-    if (el && streamRef.current) el.srcObject = streamRef.current;
+
+    // video 요소가 나중에 생성되어도
+    // 기존 카메라 스트림을 자동 연결
+    if (el && streamRef.current) {
+      el.srcObject = streamRef.current;
+    }
   }, []);
 
-  // 화면을 떠나면 카메라 끄기 (노트북 카메라 표시등도 꺼짐)
+  // 컴포넌트가 사라지면 카메라 종료
   useEffect(() => {
     mountedRef.current = true;
+
     return () => {
       mountedRef.current = false;
       stop();
     };
   }, [stop]);
 
-  return { videoRef, status, start, retry, stop };
+  return {
+    // 기존 React 카메라 연결
+    videoRef,
+
+    // 신규: MediaPipe가 영상 요소에 접근할 때 사용
+    videoElementRef: videoElRef,
+
+    // 기존 카메라 상태 및 제어 함수
+    status,
+    start,
+    retry,
+    stop,
+  };
 }
+
+

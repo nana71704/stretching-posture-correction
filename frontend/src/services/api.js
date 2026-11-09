@@ -159,3 +159,15 @@ export function cancelSession(sessionId) {
 export function getStatsSummary() {
   return request('/api/stats/summary');
 }
+
+// 10. 실시간 자세 분석
+// POST /api/pose/analyze
+export function analyzePose(stretchId, landmarks) {
+  return request('/api/pose/analyze', {
+    method: 'POST',
+    body: {
+      stretch_id: stretchId,
+      landmarks,
+    },
+  });
+}
