@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from database import DB_PATH
+from pose_analyzer import analyze_pose
 
 
 # ==========================================
@@ -16,7 +17,7 @@ from database import DB_PATH
 app = FastAPI(
     title="Stretching Posture Correction API",
     description="기연프 스트레칭 자세 교정 시스템 백엔드",
-    version="1.1.0"
+    version="1.2.0"
 )
 
 app.add_middleware(
@@ -235,7 +236,6 @@ def complete_session(session_id: int, data: SessionComplete):
 
 # ==========================================
 # 7. 운동 세션 취소
-# 신규 API
 # ==========================================
 
 @app.post("/api/sessions/{session_id}/cancel")
@@ -328,7 +328,6 @@ def get_session(session_id: int):
 
 # ==========================================
 # 9. 전체 운동 기록 조회
-# limit 기능 유지
 # ==========================================
 
 @app.get("/api/sessions")
@@ -491,3 +490,40 @@ def get_stretch_stats():
         })
 
     return results
+
+
+# ==========================================
+# 12. 실시간 자세 판정 API (시범 구현)
+# POST /api/pose/analyze
+# ==========================================
+
+class JointCoordinate(BaseModel):
+    x: float = Field(ge=0, le=1, allow_inf_nan=False)
+    y: float = Field(ge=0, le=1, allow_inf_nan=False)
+    visibility: float = Field(
+        default=1.0,
+        ge=0,
+        le=1,
+        allow_inf_nan=False
+    )
+
+
+class PoseAnalyzeRequest(BaseModel):
+    stretch_id: int
+    landmarks: dict[str, JointCoordinate]
+
+
+@app.post("/api/pose/analyze")
+def pose_analyze(data: PoseAnalyzeRequest):
+    if data.stretch_id not in (1, 2, 3):
+        raise HTTPException(
+            status_code=400,
+            detail="지원하지 않는 스트레칭 ID입니다."
+        )
+
+    landmark_data = {
+        key: value.model_dump()
+        for key, value in data.landmarks.items()
+    }
+
+    return analyze_pose(landmark_data)
