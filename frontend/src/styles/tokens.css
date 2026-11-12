@@ -1,11 +1,22 @@
 :root {
-  --color-primary: #2563eb;
+  /* 기본 색 (베이지 톤) */
+  --color-primary: #2b2622; /* 주 버튼·강조 (진한 갈색) */
+  --color-accent: #8a7563; /* 포인트 갈색 */
+  --color-accent-bg: #a89584; /* 갈색 카드 배경 */
+  --color-text: #2b2622;
+  --color-sub: #6b6259; /* 보조 글자 */
+  --color-bg: #f4f0ea; /* 페이지 배경 */
+  --color-soft: #ebe4da; /* 연한 박스 배경 */
+  --color-line: #ddd3c6; /* 테두리·구분선 */
+  --color-surface: #ffffff; /* 흰 카드 */
+
+  /* 판정 색 (바꾸지 않음) */
   --color-correct: #16a34a;
   --color-incorrect: #ea580c;
   --color-undetected: #9ca3af;
-  --color-text: #111827;
-  --color-bg: #f9fafb;
+
   --font-base: Pretendard, sans-serif;
   --font-feedback: 700 28px var(--font-base);
   --radius: 12px;
+  --radius-lg: 28px;
 }
