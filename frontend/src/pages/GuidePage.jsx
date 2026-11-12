@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, ErrorBanner, Loader, Modal } from '../components/common';
+import { Button, ErrorBanner, Loader, LogoHeader, Modal, StepBar } from '../components/common';
+import StretchScene from '../components/stretch/StretchScene';
+import { STRETCH_INFO } from '../constants/stretchInfo';
 import useAsync from '../hooks/useAsync';
 import useCamera from '../hooks/useCamera';
 import useSession from '../hooks/useSession';
@@ -79,75 +81,130 @@ export default function GuidePage() {
   };
 
   const canStart = !!stretch && cameraStatus === 'ready' && !starting && countdown === null;
+  const info = (stretch && STRETCH_INFO[stretch.id]) ?? {};
 
   return (
-    <main className={styles.page}>
-      <div className={styles.layout}>
-        {/* 왼쪽: 스트레칭 안내 */}
-        <section className={styles.info}>
-          {loading && <Loader />}
-          {error && (
-            <ErrorBanner
-              message={error.message}
-              onRetry={error.status === 404 ? undefined : reload}
-            />
-          )}
-          {stretch && (
-            <>
-              <h1 className={styles.title}>{stretch.name}</h1>
-              <p className={styles.desc}>{stretch.description}</p>
-              <p className={styles.target}>목표: 올바른 자세 {stretch.target_seconds}초 유지</p>
-              {/* 기준 자세 이미지: API에 이미지 필드가 없어서 자리만 둠 */}
-              <div className={styles.imagePlaceholder}>기준 자세 이미지 (준비 중)</div>
-            </>
-          )}
+    <div className={styles.page}>
+      <LogoHeader />
 
-          <h2 className={styles.subtitle}>카메라 위치 안내</h2>
-          <ul className={styles.tips}>
-            {TIPS.map((tip) => (
-              <li key={tip}>{tip}</li>
-            ))}
-          </ul>
-          <p className={styles.privacy}>🔒 카메라 영상은 자세 분석에만 사용하고 저장하지 않아요.</p>
-        </section>
+      <main>
+        <StepBar current={2} />
+        <h1 className={styles.title}>{stretch?.name ?? '운동 안내'}</h1>
+        <p className={styles.lead}>
+          기준 자세를 보고, 카메라에 전신이 잘 보이는지 확인한 뒤 시작해요
+        </p>
 
-        {/* 오른쪽: 카메라 미리보기 */}
-        <section>
-          <div className={styles.preview}>
-            <video ref={videoRef} className={styles.video} autoPlay muted playsInline />
-            {cameraStatus !== 'ready' && cameraStatus !== 'denied' && (
-              <p className={styles.cameraMessage}>{CAMERA_MESSAGE[cameraStatus]}</p>
-            )}
-            {countdown !== null && countdown > 0 && (
-              <div className={styles.countdown} aria-live="assertive">
-                {countdown}
-              </div>
-            )}
+        <div className={styles.layout}>
+          {/* ===== 왼쪽: 기준 자세 + 카메라 위치 안내 ===== */}
+          <div className={styles.left}>
+            <section className={styles.guideCard} aria-label="운동 방법">
+              {loading && <Loader />}
+              {error && (
+                <ErrorBanner
+                  message={error.message}
+                  onRetry={error.status === 404 ? undefined : reload}
+                />
+              )}
+              {stretch && (
+                <>
+                  <div className={styles.picture}>
+                    <span className={styles.chip}>기준 자세</span>
+                    <StretchScene pose={info.pose} crop />
+                  </div>
+                  <div className={styles.howto}>
+                    <div className={styles.tags}>
+                      {info.target && <span className={styles.tag}>🎯 {info.target}</span>}
+                      <span className={styles.tag}>⏱ {stretch.target_seconds}초 유지</span>
+                    </div>
+                    <h2 className={styles.subtitle}>이렇게 해요</h2>
+                    {info.steps ? (
+                      <ol className={styles.steps}>
+                        {info.steps.map((step) => (
+                          <li key={step}>{step}</li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <p className={styles.desc}>{stretch.description}</p>
+                    )}
+                  </div>
+                </>
+              )}
+            </section>
+
+            <section className={styles.tipBox}>
+              <h2 className={styles.subtitle}>📷 카메라 위치 안내</h2>
+              <ul className={styles.tips}>
+                {TIPS.map((tip) => (
+                  <li key={tip}>{tip}</li>
+                ))}
+              </ul>
+              <p className={styles.privacy}>
+                🔒 카메라 영상은 자세 분석에만 사용하고 저장하지 않아요.
+              </p>
+            </section>
           </div>
 
-          {['notfound', 'busy', 'error'].includes(cameraStatus) && (
-            <ErrorBanner
-              message="카메라를 확인한 뒤 다시 시도해 주세요."
-              onRetry={handleRetryCamera}
-            />
-          )}
-          {startError && (
-            <ErrorBanner
-              message={`운동을 시작하지 못했어요: ${startError.message}`}
-              onRetry={handleStart}
-            />
-          )}
+          {/* ===== 오른쪽: 카메라 미리보기 ===== */}
+          <section className={styles.right} aria-label="카메라 미리보기">
+            <div className={styles.preview}>
+              <video ref={videoRef} className={styles.video} autoPlay muted playsInline />
 
-          <div className={styles.actions}>
-            <Button variant="secondary" onClick={() => navigate('/stretches')}>
-              다른 스트레칭
-            </Button>
-            <Button onClick={handleStart} disabled={!canStart}>
-              {starting ? '시작하는 중...' : '준비 완료'}
-            </Button>
-          </div>
-        </section>
-      </div>
+              <span className={`${styles.chip} ${styles.previewChip}`}>카메라 미리보기</span>
+              {cameraStatus === 'ready' && (
+                <>
+                  <span className={styles.connected}>✔ 카메라 연결됨</span>
+                  <div className={styles.frameGuide} aria-hidden="true" />
+                  {countdown === null && (
+                    <p className={styles.caption}>
+                      점선 안에 전신이 들어오게 선 뒤 [준비 완료]를 눌러 주세요
+                    </p>
+                  )}
+                </>
+              )}
+
+              {cameraStatus !== 'ready' && cameraStatus !== 'denied' && (
+                <p className={styles.cameraMessage}>{CAMERA_MESSAGE[cameraStatus]}</p>
+              )}
+              {countdown !== null && countdown > 0 && (
+                <div className={styles.countdown} aria-live="assertive">
+                  {countdown}
+                </div>
+              )}
+            </div>
+
+            {['notfound', 'busy', 'error'].includes(cameraStatus) && (
+              <ErrorBanner
+                message="카메라를 확인한 뒤 다시 시도해 주세요."
+                onRetry={handleRetryCamera}
+              />
+            )}
+            {startError && (
+              <ErrorBanner
+                message={`운동을 시작하지 못했어요: ${startError.message}`}
+                onRetry={handleStart}
+              />
+            )}
+
+            <div className={styles.actions}>
+              <button
+                type="button"
+                className={styles.backBtn}
+                onClick={() => navigate('/stretches')}
+              >
+                다른 스트레칭
+              </button>
+              <button
+                type="button"
+                className={styles.startBtn}
+                onClick={handleStart}
+                disabled={!canStart}
+              >
+                {starting ? '시작하는 중...' : '준비 완료'}
+              </button>
+            </div>
+          </section>
+        </div>
+      </main>
 
       <Modal
         open={cameraStatus === 'denied' && !deniedClosed}
@@ -169,6 +226,6 @@ export default function GuidePage() {
           <li>[다시 시도]를 누르거나 페이지를 새로고침하세요.</li>
         </ol>
       </Modal>
-    </main>
+    </div>
   );
 }

@@ -73,12 +73,16 @@ const POSES = {
   },
 };
 
-export default function StretchScene({ pose }) {
+export default function StretchScene({ pose, crop = false }) {
   const p = POSES[pose] ?? POSES.arms;
   const [hx, hy] = p.head;
 
   return (
-    <svg className={styles.scene} viewBox="0 0 540 360" aria-hidden="true">
+    <svg 
+      className={styles.scene} 
+      viewBox={crop ? '150 20 260 340' : '0 0 540 360'}
+      aria-hidden="true"
+    >
       {/* 방: 벽, 창문, 바닥, 매트, 화분 */}
       <rect className={styles.wall} width="540" height="360" />
       <g className={styles.window}>
