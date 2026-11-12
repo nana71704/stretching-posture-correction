@@ -1,8 +1,8 @@
-
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import { Button, ErrorBanner, Modal } from '../components/common';
+import PoseOverlay from '../components/live/PoseOverlay';
 import StatusBadge from '../components/live/StatusBadge';
 
 import useCamera from '../hooks/useCamera';
@@ -38,7 +38,7 @@ export default function LiveAnalysisPage() {
   const stretchId = state.stretch?.id ?? null;
 
   // 실제 MediaPipe + FastAPI 자세 분석
-  const pose = useRealPose(
+  const { pose, landmarksRef } = useRealPose(
     videoElementRef,
     running,
     stretchId
@@ -154,6 +154,12 @@ export default function LiveAnalysisPage() {
           autoPlay
           muted
           playsInline
+        />
+
+        <PoseOverlay
+          videoElementRef={videoElementRef}
+          landmarksRef={landmarksRef}
+          status={pose.status}
         />
 
         {cameraStatus === 'requesting' && (
