@@ -1,0 +1,20 @@
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.steps li {
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: var(--color-soft);
+  color: var(--color-sub);
+  font-size: 14px;
+  font-weight: 700;
+}
+.steps li.current {
+  background: var(--color-primary);
+  color: var(--color-bg);
+}

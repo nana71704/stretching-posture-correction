@@ -1,0 +1,79 @@
+.scene {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.wall {
+  fill: #e8e0d4;
+}
+.window rect,
+.window line {
+  fill: #f3eee7;
+  stroke: #fff;
+  stroke-width: 6;
+}
+.floor {
+  fill: #b99a78;
+}
+.mat {
+  fill: #5b6b55;
+  opacity: 0.85;
+}
+.pot {
+  fill: #fff;
+}
+.leaf {
+  fill: #5b7f4f;
+}
+
+.leg {
+  fill: none;
+  stroke: #2b2622;
+  stroke-width: 16;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.shirt {
+  fill: #2b2622;
+  stroke: #2b2622;
+  stroke-width: 6;
+  stroke-linejoin: round;
+}
+.torso {
+  fill: none;
+  stroke: #2b2622;
+  stroke-width: 30;
+  stroke-linecap: round;
+}
+.arm {
+  fill: none;
+  stroke: #f1c7a5;
+  stroke-width: 11;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.skin {
+  fill: #f1c7a5;
+}
+.hair {
+  fill: #2b2622;
+}
+
+/* 관절선: 부모(카드)가 --skeleton-opacity 를 1로 바꾸면 나타남 */
+.skeleton {
+  opacity: var(--skeleton-opacity, 0);
+  transition: opacity 0.2s;
+}
+.bone {
+  fill: none;
+  stroke: #a3e635;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.joint {
+  fill: #fff;
+  stroke: #a3e635;
+  stroke-width: 2.5;
+}
