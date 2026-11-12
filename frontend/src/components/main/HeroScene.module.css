@@ -1,0 +1,85 @@
+.scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: camera 12s ease-in-out infinite alternate;
+}
+
+.wall { fill: #e8e0d4; }
+.window rect { fill: #f3eee7; stroke: #fff; stroke-width: 10; }
+.window line { stroke: #fff; stroke-width: 8; }
+.floor { fill: #b99a78; }
+.mat { fill: #5b6b55; opacity: 0.85; }
+.pot { fill: #fff; }
+.leaf { fill: #5b7f4f; }
+
+.leg {
+  fill: none;
+  stroke: #2b2622;
+  stroke-width: 26;
+  stroke-linecap: round;
+}
+.shirt {
+  fill: #2b2622;
+  stroke: #2b2622;
+  stroke-width: 10;
+  stroke-linejoin: round;
+}
+.arm {
+  fill: none;
+  stroke: #f1c7a5;
+  stroke-width: 20;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.skin { fill: #f1c7a5; }
+.hair { fill: #2b2622; }
+
+/* 관절선·관절 점: 팔을 내리면 주황, 올리면 초록 */
+.bone {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  animation: boneColor 6s infinite;
+}
+.joint {
+  fill: #fff;
+  stroke-width: 3.5;
+  animation: boneColor 6s infinite;
+}
+
+/* 팔은 어깨를 중심으로 회전 */
+.armLeft,
+.armRight {
+  transform-box: view-box;
+  animation: 6s ease-in-out infinite;
+}
+.armLeft { transform-origin: 552px 158px; animation-name: armLeft; }
+.armRight { transform-origin: 648px 158px; animation-name: armRight; }
+
+@keyframes armLeft {
+  0%, 15% { transform: rotate(-185deg); }
+  40%, 85% { transform: rotate(0deg); }
+  100% { transform: rotate(-185deg); }
+}
+@keyframes armRight {
+  0%, 15% { transform: rotate(185deg); }
+  40%, 85% { transform: rotate(0deg); }
+  100% { transform: rotate(185deg); }
+}
+@keyframes boneColor {
+  0%, 37% { stroke: #fb923c; }
+  40%, 85% { stroke: #a3e635; }
+  88%, 100% { stroke: #fb923c; }
+}
+@keyframes camera {
+  from { transform: scale(1); }
+  to { transform: scale(1.05) translateX(-10px); }
+}
+
+/* 움직임 줄이기 설정을 켠 사용자는 팔을 올린 상태로 멈춤 */
+@media (prefers-reduced-motion: reduce) {
+  .scene, .armLeft, .armRight, .bone, .joint { animation: none; }
+  .bone, .joint { stroke: #a3e635; }
+}
