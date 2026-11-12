@@ -43,10 +43,29 @@
   font-size: 22px;
   font-weight: 700;
 }
-.feedback {
+/* 자막: 카메라 화면 아래쪽 가운데 */
+.caption {
+  position: absolute;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%);
+  max-width: 90%;
   margin: 0;
-  min-height: 2.6em; /* 문구 길이가 바뀌어도 아래가 덜컹이지 않게 */
+  padding: 12px 24px;
+  border-left: 8px solid var(--color-undetected);
+  border-radius: var(--radius);
+  background: rgb(17 24 39 / 75%);
+  color: #fff;
   font: var(--font-feedback);
+  text-align: center;
+  word-break: keep-all; /* 한국어를 단어 중간에서 끊지 않기 */
+  z-index: 1;
+}
+.caption.correct {
+  border-left-color: var(--color-correct);
+}
+.caption.incorrect {
+  border-left-color: var(--color-incorrect);
 }
 .label {
   margin: 0 0 4px;
