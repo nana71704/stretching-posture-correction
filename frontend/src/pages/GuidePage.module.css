@@ -1,65 +1,130 @@
 .page {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 40px 24px;
-}
-.layout {
-  display: grid;
-  grid-template-columns: 1fr 1.3fr;
-  gap: 32px;
-  align-items: start;
+  padding: 0 56px 64px;
+  word-break: keep-all;
 }
 
-/* ---------- 왼쪽: 안내 ---------- */
-.info {
+/* ===== 제목 ===== */
+.title {
+  margin: 28px 0 12px;
+  font-size: 48px;
+  letter-spacing: -1.5px;
+}
+.lead {
+  margin: 0;
+  font-size: 18px;
+  color: var(--color-sub);
+}
+
+/* ===== 2단 배치 (왼쪽 안내 / 오른쪽 카메라) ===== */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 24px;
+  align-items: start;
+  margin-top: 32px;
+}
+.left {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
 }
-.title {
+
+/* 흰 알약 라벨 ("기준 자세", "카메라 미리보기") */
+.chip {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ===== 왼쪽 위: 기준 자세 카드 ===== */
+.guideCard {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+.picture {
+  position: relative;
+  flex: 0 0 170px;
+  overflow: hidden;
+  border-radius: 20px;
+
+  /* 관절선 항상 보이게 (StretchScene.module.css의 .skeleton) */
+  --skeleton-opacity: 1;
+}
+.howto {
+  flex: 1;
+  padding-top: 14px;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tag {
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: var(--color-soft);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.subtitle {
+  margin: 18px 0 10px;
+  font-size: 20px;
+}
+.steps {
   margin: 0;
-  font-size: 32px;
+  padding-left: 20px;
+  line-height: 1.9;
+  color: var(--color-text);
 }
 .desc {
   margin: 0;
-  color: #4b5563;
   line-height: 1.6;
+  color: var(--color-sub);
 }
-.target {
-  margin: 0;
-  font-weight: 700;
-  color: var(--color-primary);
+
+/* ===== 왼쪽 아래: 카메라 위치 안내 ===== */
+.tipBox {
+  padding: 22px 24px;
+  border-radius: var(--radius-lg);
+  background: var(--color-soft);
 }
-.imagePlaceholder {
-  aspect-ratio: 4 / 3;
-  display: grid;
-  place-items: center;
-  background: #e5e7eb;
-  border-radius: var(--radius);
-  color: #6b7280;
-}
-.subtitle {
-  margin: 12px 0 0;
-  font-size: 20px;
+.tipBox .subtitle {
+  margin-top: 0;
 }
 .tips {
   margin: 0;
   padding-left: 20px;
-  line-height: 1.8;
+  line-height: 1.9;
 }
 .privacy {
-  margin: 0;
+  margin: 14px 0 0;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-sub);
 }
 
-/* ---------- 오른쪽: 카메라 ---------- */
+/* ===== 오른쪽: 카메라 미리보기 ===== */
+.right {
+  min-width: 0;
+}
 .preview {
   position: relative;
-  aspect-ratio: 16 / 9;
-  background: #111827;
-  border-radius: var(--radius);
+  aspect-ratio: 6 / 5;
   overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary);
   margin-bottom: 16px;
 }
 .video {
@@ -68,6 +133,49 @@
   object-fit: cover;
   transform: scaleX(-1); /* 거울 모드 */
 }
+.previewChip {
+  top: 16px;
+  left: 16px;
+}
+.connected {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--color-correct);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+/* 전신이 들어와야 하는 자리 (흰 점선) */
+.frameGuide {
+  position: absolute;
+  top: 12%;
+  bottom: 12%;
+  left: 50%;
+  width: 46%;
+  border: 3px dashed rgb(255 255 255 / 85%);
+  border-radius: 20px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.caption {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 10px 18px;
+  border-radius: 12px;
+  background: rgb(43 38 34 / 85%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  transform: translateX(-50%);
+}
 .cameraMessage {
   position: absolute;
   inset: 0;
@@ -75,7 +183,7 @@
   place-items: center;
   margin: 0;
   padding: 24px;
-  color: #fff;
+  color: var(--color-soft);
   text-align: center;
 }
 .countdown {
@@ -83,14 +191,64 @@
   inset: 0;
   display: grid;
   place-items: center;
-  font-size: 120px;
-  font-weight: 700;
+  font-size: 140px;
+  font-weight: 800;
   color: #fff;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgb(43 38 34 / 45%);
 }
+
+/* ===== 버튼 ===== */
 .actions {
   display: flex;
-  justify-content: flex-end;
   gap: 12px;
   margin-top: 16px;
+}
+.backBtn,
+.startBtn {
+  min-height: 64px;
+  padding: 0 28px;
+  border: 2px solid var(--color-primary);
+  border-radius: 999px;
+  font: 800 18px var(--font-base);
+  cursor: pointer;
+}
+.backBtn {
+  background: transparent;
+  color: var(--color-primary);
+}
+.startBtn {
+  flex: 1;
+  background: var(--color-primary);
+  color: #fff;
+}
+.backBtn:focus-visible,
+.startBtn:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+.startBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ===== 좁은 화면 ===== */
+@media (max-width: 1000px) {
+  .page {
+    padding: 0 20px 48px;
+  }
+  .title {
+    font-size: 34px;
+  }
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .guideCard {
+    flex-direction: column;
+  }
+  .picture {
+    flex-basis: auto;
+    max-width: 220px;
+  }
 }

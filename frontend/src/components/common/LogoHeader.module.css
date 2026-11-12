@@ -1,0 +1,32 @@
+.header {
+  display: flex;
+  align-items: center;
+  height: 84px;
+  margin-bottom: 40px;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-text);
+  text-decoration: none;
+}
+.logoMark {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--color-accent);
+}
+.logoMark::after {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+}
