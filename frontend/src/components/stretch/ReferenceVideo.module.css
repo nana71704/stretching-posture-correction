@@ -1,0 +1,39 @@
+/* 영상 전체가 클릭 가능한 버튼 */
+.wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: #e8e0d4; /* 영상이 뜨기 전 방 벽 색 */
+  cursor: pointer;
+}
+
+.video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2; /* 영상 크기 720 x 480 */
+  object-fit: cover;
+}
+
+/* UI-03: 세로 카드에 맞게 가운데(사람)만 보이게 */
+.crop .video {
+  aspect-ratio: 260 / 340;
+  object-position: center;
+}
+
+/* 멈춰 있을 때 오른쪽 아래에 뜨는 안내 */
+.replay {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(43, 38, 34, 0.75);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.wrap:hover .replay {
+  background: #2b2622;
+}

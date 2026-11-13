@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, ErrorBanner, Loader, LogoHeader, Modal, StepBar } from '../components/common';
-import StretchScene from '../components/stretch/StretchScene';
+import ReferenceVideo from '../components/stretch/ReferenceVideo';
 import { STRETCH_INFO } from '../constants/stretchInfo';
 import useAsync from '../hooks/useAsync';
 import useCamera from '../hooks/useCamera';
@@ -109,7 +109,7 @@ export default function GuidePage() {
                 <>
                   <div className={styles.picture}>
                     <span className={styles.chip}>기준 자세</span>
-                    <StretchScene pose={info.pose} crop />
+                    <ReferenceVideo pose={info.pose} crop />
                   </div>
                   <div className={styles.howto}>
                     <div className={styles.tags}>
@@ -153,10 +153,9 @@ export default function GuidePage() {
               {cameraStatus === 'ready' && (
                 <>
                   <span className={styles.connected}>✔ 카메라 연결됨</span>
-                  <div className={styles.frameGuide} aria-hidden="true" />
                   {countdown === null && (
                     <p className={styles.caption}>
-                      점선 안에 전신이 들어오게 선 뒤 [준비 완료]를 눌러 주세요
+                      카메라에 전신이 들어오게 선 뒤 [준비 완료]를 눌러 주세요
                     </p>
                   )}
                 </>
