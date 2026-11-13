@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
-import { Button, ErrorBanner, Modal } from '../components/common';
+import { Button, ErrorBanner, LogoHeader, Modal, StepBar } from '../components/common';
+import HoldRing from '../components/live/HoldRing';
 import PoseOverlay from '../components/live/PoseOverlay';
 import StatusBadge from '../components/live/StatusBadge';
+import StretchScene from '../components/stretch/StretchScene';
+import { STRETCH_INFO } from '../constants/stretchInfo';
 
 import useCamera from '../hooks/useCamera';
 import useFeedbackVoice, { speak } from '../hooks/useFeedbackVoice';
@@ -15,6 +18,14 @@ import useWorkoutTimer from '../hooks/useWorkoutTimer';
 import { ApiError, cancelSession, completeSession } from '../services/api';
 
 import styles from './LiveAnalysisPage.module.css';
+
+// 12.3초 → "00:12" (경과 시간 표시용)
+function toClock(sec) {
+  const s = Math.floor(sec);
+  const mm = String(Math.floor(s / 60)).padStart(2, '0');
+  const ss = String(s % 60).padStart(2, '0');
+  return `${mm}:${ss}`;
+}
 
 export default function LiveAnalysisPage() {
   const { id } = useParams();
@@ -89,8 +100,8 @@ export default function LiveAnalysisPage() {
   }
 
   const target = state.stretch.target_seconds;
-
-  const progress = Math.min(correct / target, 1) * 100;
+  const goalReached = correct >= target;
+  const info = STRETCH_INFO[state.stretch.id] ?? {};
 
   const guidePath = `/stretches/${state.stretch.id}/guide`;
 
@@ -142,97 +153,126 @@ export default function LiveAnalysisPage() {
   };
 
   return (
-    <main className={styles.page}>
-      <section className={styles.stage}>
-        <video ref={videoRef} className={styles.video} autoPlay muted playsInline />
+    <div className={styles.page}>
+      <LogoHeader />
 
-        <PoseOverlay
-          videoElementRef={videoElementRef}
-          landmarksRef={landmarksRef}
-          status={shownStatus}
-        />
-
-        {cameraStatus === 'requesting' && (
-          <p className={styles.stageMessage}>카메라를 켜는 중이에요...</p>
-        )}
-
-        {['notfound', 'busy', 'error'].includes(cameraStatus) && (
-          <p className={styles.stageMessage}>
-            카메라를 사용할 수 없어요. [취소]를 누르고 운동 안내 화면에서 다시 시도해 주세요.
-          </p>
-        )}
-
-        {/* 자막: 판정 문구를 카메라 화면 아래에 크게 */}
-        {cameraStatus === 'ready' && (
-          <p className={`${styles.caption} ${styles[shownStatus] ?? ''}`} aria-live="polite">
-            {shownFeedback}
-          </p>
-        )}
-      </section>
-
-      <aside className={styles.panel}>
-        <p className={styles.stretchName}>{state.stretch.name}</p>
-
-        <StatusBadge status={shownStatus} />
-
-        <Button variant="secondary" onClick={() => setVoiceOn((on) => !on)} aria-pressed={!voiceOn}>
-          {voiceOn ? '🔊 음성 끄기' : '🔇 음성 켜기'}
-        </Button>
-
-        {pose.error && (
-          <ErrorBanner message="자세 분석 서버에 연결할 수 없어요. 백엔드가 켜져 있는지 확인해 주세요." />
-        )}
-
-        {import.meta.env.DEV && (
-          <p className={styles.label}>
-            [개발] FPS {fps} · 판정 지연 {pose.latencyMs ?? '-'}ms
-          </p>
-        )}
-
-        {pose.angle !== null && <p className={styles.label}>측정 각도: {pose.angle.toFixed(1)}°</p>}
-
-        <div>
-          <p className={styles.label}>올바른 자세 시간</p>
-
-          <p className={styles.time}>
-            {correct.toFixed(1)}초 <span className={styles.timeTarget}>/ {target}초</span>
-          </p>
-
-          <div
-            className={styles.bar}
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={target}
-            aria-valuenow={Math.min(correct, target)}
-          >
-            <div className={styles.barFill} style={{ width: `${progress}%` }} />
-          </div>
+      <main>
+        <StepBar current={3} />
+        <div className={styles.titleRow}>
+          <h1 className={styles.title}>{state.stretch.name}</h1>
+          {running && pose.ready && <span className={styles.live}>분석 중</span>}
         </div>
 
-        <p className={styles.label}>전체 운동 시간 {elapsed.toFixed(1)}초</p>
+        <div className={styles.layout}>
+          {/* ===== 왼쪽: 카메라 + 관절선 + 자막 ===== */}
+          <section className={styles.stage} aria-label="실시간 자세 분석">
+            <video ref={videoRef} className={styles.video} autoPlay muted playsInline />
 
-        {saveError && (
-          <ErrorBanner
-            message={`결과 저장에 실패했어요: ${saveError.message}`}
-            onRetry={handleFinish}
-            retryLabel="다시 저장"
-          />
-        )}
+            <PoseOverlay
+              videoElementRef={videoElementRef}
+              landmarksRef={landmarksRef}
+              status={shownStatus}
+            />
 
-        <div className={styles.actions}>
-          <Button
-            variant="danger"
-            onClick={handleFinish}
-            disabled={phase !== 'running' || elapsed <= 0}
-          >
-            {phase === 'saving' ? '저장 중...' : '종료'}
-          </Button>
+            {cameraStatus === 'ready' && (
+              <div className={styles.badge}>
+                <StatusBadge status={shownStatus} />
+              </div>
+            )}
 
-          <Button variant="secondary" onClick={handleCancel} disabled={phase === 'saving'}>
-            취소
-          </Button>
+            {cameraStatus === 'requesting' && (
+              <p className={styles.stageMessage}>카메라를 켜는 중이에요...</p>
+            )}
+
+            {['notfound', 'busy', 'error'].includes(cameraStatus) && (
+              <p className={styles.stageMessage}>
+                카메라를 사용할 수 없어요. [취소]를 누르고 운동 안내 화면에서 다시 시도해 주세요.
+              </p>
+            )}
+
+            {/* 자막: 판정 문구를 카메라 화면 아래에 크게 */}
+            {cameraStatus === 'ready' && (
+              <p className={`${styles.caption} ${styles[shownStatus] ?? ''}`} aria-live="polite">
+                {shownFeedback}
+              </p>
+            )}
+          </section>
+
+          {/* ===== 오른쪽: 유지 시간 · 기준 자세 · 정보 · 버튼 ===== */}
+          <aside className={styles.panel}>
+            <section className={styles.card}>
+              <HoldRing value={correct} target={target} />
+              <p className={`${styles.ringLabel} ${goalReached ? styles.goal : ''}`}>
+                {goalReached ? '🎉 목표 달성! [종료]를 눌러 주세요' : '올바른 자세 유지 시간'}
+              </p>
+            </section>
+
+            <section className={styles.card}>
+              <h2 className={styles.cardTitle}>기준 자세</h2>
+              <div className={styles.reference}>
+                <StretchScene pose={info.pose} />
+              </div>
+            </section>
+
+            <section className={`${styles.card} ${styles.infoCard}`}>
+              <div>
+                <p className={styles.infoLabel}>경과 시간</p>
+                <p className={styles.infoValue}>{toClock(elapsed)}</p>
+              </div>
+              <div>
+                <p className={styles.infoLabel}>음성 안내</p>
+                <button
+                  type="button"
+                  className={styles.voiceBtn}
+                  onClick={() => setVoiceOn((on) => !on)}
+                  aria-pressed={voiceOn}
+                >
+                  {voiceOn ? '🔊 켜짐' : '🔇 꺼짐'}
+                </button>
+              </div>
+              {pose.angle !== null && (
+                <p className={styles.extra}>측정 각도 {pose.angle.toFixed(1)}°</p>
+              )}
+              {import.meta.env.DEV && (
+                <p className={styles.extra}>
+                  [개발] FPS {fps} · 판정 지연 {pose.latencyMs ?? '-'}ms
+                </p>
+              )}
+            </section>
+
+            {pose.error && (
+              <ErrorBanner message="자세 분석 서버에 연결할 수 없어요. 백엔드가 켜져 있는지 확인해 주세요." />
+            )}
+
+            {saveError && (
+              <ErrorBanner
+                message={`결과 저장에 실패했어요: ${saveError.message}`}
+                onRetry={handleFinish}
+                retryLabel="다시 저장"
+              />
+            )}
+
+            <div className={styles.actions}>
+              <button
+                type="button"
+                className={styles.cancelBtn}
+                onClick={handleCancel}
+                disabled={phase === 'saving'}
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                className={styles.finishBtn}
+                onClick={handleFinish}
+                disabled={phase !== 'running' || elapsed <= 0}
+              >
+                {phase === 'saving' ? '저장 중...' : '종료'}
+              </button>
+            </div>
+          </aside>
         </div>
-      </aside>
+      </main>
 
       <Modal
         open={cameraStatus === 'denied'}
@@ -246,6 +286,6 @@ export default function LiveAnalysisPage() {
       >
         <p>카메라 권한이 꺼져 있어 분석을 진행할 수 없어요.</p>
       </Modal>
-    </main>
+    </div>
   );
 }
