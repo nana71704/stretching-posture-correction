@@ -1,3 +1,5 @@
+from fastapi import Request
+from motion_bridge import motion_bridge
 
 import sqlite3
 from datetime import datetime, timezone
@@ -527,3 +529,43 @@ def pose_analyze(data: PoseAnalyzeRequest):
     }
 
     return analyze_pose(landmark_data)
+
+
+# ==========================================
+# 13. Python MediaPipe 영상 프레임 분석 API
+# POST /api/pose/analyze-frame
+# ==========================================
+
+@app.post("/api/pose/analyze-frame")
+async def pose_analyze_frame(request: Request):
+    # React에서 전송한 JPEG 이미지 수신
+    if request.headers.get("content-type", "").split(";")[0].strip().lower() != "image/jpeg":
+        raise HTTPException(
+            status_code=415,
+            detail="JPEG 이미지만 전송할 수 있습니다."
+        )
+
+    # 요청 크기 제한
+    if request.headers.get("content-length"):
+        try:
+            if int(request.headers["content-length"]) > 2 * 1024 * 1024:
+                raise HTTPException(
+                    status_code=413,
+                    detail="이미지는 2MB 이하여야 합니다."
+                )
+        except ValueError:
+            raise HTTPException(status_code=400, detail="잘못된 Content-Length입니다.")
+
+    image_bytes = await request.body()
+
+    if len(image_bytes) > 2 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="이미지는 2MB 이하여야 합니다.")
+
+    if not image_bytes:
+        raise HTTPException(status_code=400, detail="이미지가 비어 있습니다.")
+
+    try:
+        from starlette.concurrency import run_in_threadpool
+        return await run_in_threadpool(motion_bridge.analyze_frame, image_bytes)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
