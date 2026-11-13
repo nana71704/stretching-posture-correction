@@ -7,3 +7,7 @@ __pycache__/
 *.pyc
 
 /stretching-posture-correction/
+
+   # Motion (Python 영상처리 모듈)
+   motion/models/
+   *.jsonl
