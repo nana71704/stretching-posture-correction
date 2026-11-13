@@ -171,3 +171,44 @@ export function analyzePose(stretchId, landmarks) {
     },
   });
 }
+
+
+/**
+ * Python MediaPipe 영상 프레임 분석
+ * POST /api/pose/analyze-frame
+ *
+ * @param {Blob} imageBlob - JPEG 이미지
+ * @returns {Promise<object>} 자세 판정 및 관절 좌표
+ */
+export async function analyzePoseFrame(imageBlob) {
+  if (!(imageBlob instanceof Blob)) {
+    throw new ApiError('전송할 이미지가 올바르지 않아요.', 400);
+  }
+
+  let res;
+
+  try {
+    res = await fetch(`${BASE_URL}/api/pose/analyze-frame`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'image/jpeg',
+      },
+      body: imageBlob,
+    });
+  } catch {
+    throw new ApiError('영상 분석 서버에 연결할 수 없어요.', 0);
+  }
+
+  const data = await res.json().catch(() => null);
+
+  if (!res.ok) {
+    const message =
+      typeof data?.detail === 'string'
+        ? data.detail
+        : `영상 분석에 실패했어요 (${res.status})`;
+
+    throw new ApiError(message, res.status);
+  }
+
+  return data;
+}
