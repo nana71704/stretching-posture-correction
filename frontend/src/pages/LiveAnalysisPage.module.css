@@ -1,24 +1,76 @@
 .page {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 24px;
-  height: 100vh;
-  padding: 24px;
-  box-sizing: border-box;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 56px 64px;
+  word-break: keep-all;
 }
 
-/* ---------- 왼쪽: 카메라 ---------- */
+/* ===== 제목 + 분석 중 표시 ===== */
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin: 28px 0 0;
+}
+.title {
+  margin: 0;
+  font-size: 48px;
+  letter-spacing: -1.5px;
+}
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: #fde8e8;
+  color: #dc2626;
+  font-size: 15px;
+  font-weight: 700;
+}
+.live::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentcolor;
+  animation: blink 1.2s ease-in-out infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* ===== 2단 배치 (왼쪽 카메라 / 오른쪽 패널) ===== */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+  margin-top: 32px;
+}
+
+/* ===== 왼쪽: 카메라 ===== */
 .stage {
   position: relative;
-  background: #111827;
-  border-radius: var(--radius);
+  aspect-ratio: 4 / 3;
   overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary);
 }
 .video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transform: scaleX(-1); /* 거울 모드 */
+}
+.badge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 1;
 }
 .stageMessage {
   position: absolute;
@@ -27,39 +79,27 @@
   place-items: center;
   margin: 0;
   padding: 24px;
-  color: #fff;
+  color: var(--color-soft);
   font-size: 20px;
   text-align: center;
-}
-
-/* ---------- 오른쪽: 상태 패널 ---------- */
-.panel {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-.stretchName {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 700;
 }
 /* 자막: 카메라 화면 아래쪽 가운데 */
 .caption {
   position: absolute;
   left: 50%;
-  bottom: 32px;
-  transform: translateX(-50%);
-  max-width: 90%;
+  bottom: 28px;
+  z-index: 1;
+  width: max-content;
+  max-width: calc(100% - 40px);
   margin: 0;
-  padding: 12px 24px;
+  padding: 14px 26px;
   border-left: 8px solid var(--color-undetected);
-  border-radius: var(--radius);
-  background: rgb(17 24 39 / 75%);
+  border-radius: 14px;
+  background: rgb(43 38 34 / 85%);
   color: #fff;
   font: var(--font-feedback);
   text-align: center;
-  word-break: keep-all; /* 한국어를 단어 중간에서 끊지 않기 */
-  z-index: 1;
+  transform: translateX(-50%);
 }
 .caption.correct {
   border-left-color: var(--color-correct);
@@ -67,37 +107,119 @@
 .caption.incorrect {
   border-left-color: var(--color-incorrect);
 }
-.label {
-  margin: 0 0 4px;
-  color: #4b5563;
+
+/* ===== 오른쪽: 패널 ===== */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
 }
-.time {
-  margin: 0 0 8px;
-  font-size: 36px;
+.card {
+  padding: 22px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+.ringLabel {
+  margin: 14px 0 0;
+  color: var(--color-sub);
+  font-size: 16px;
   font-weight: 700;
+  text-align: center;
 }
-.timeTarget {
-  font-size: 20px;
-  color: #6b7280;
+.ringLabel.goal {
+  color: var(--color-correct);
 }
-.bar {
-  height: 16px;
-  background: #e5e7eb;
-  border-radius: 999px;
+.cardTitle {
+  margin: 0 0 12px;
+  color: var(--color-sub);
+  font-size: 14px;
+}
+.reference {
   overflow: hidden;
+  border-radius: 16px;
+
+  /* 관절선 항상 보이게 (StretchScene.module.css의 .skeleton) */
+  --skeleton-opacity: 1;
 }
-.barFill {
-  height: 100%;
-  background: var(--color-correct);
-  transition: width 0.1s linear;
+.infoCard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
 }
+.infoLabel {
+  margin: 0 0 4px;
+  color: var(--color-sub);
+  font-size: 13px;
+}
+.infoValue {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums; /* 숫자 폭을 같게 해서 덜 흔들리게 */
+}
+.voiceBtn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font: 800 22px var(--font-base);
+  cursor: pointer;
+}
+.voiceBtn:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+.extra {
+  grid-column: 1 / -1; /* 두 칸 다 차지 */
+  margin: 0;
+  color: var(--color-sub);
+  font-size: 13px;
+}
+
+/* ===== 버튼 ===== */
 .actions {
   display: flex;
   gap: 12px;
-  margin-top: auto; /* 버튼을 패널 맨 아래로 */
 }
-.mockNote {
-  margin: 0;
-  font-size: 13px;
-  color: #9ca3af;
+.cancelBtn,
+.finishBtn {
+  flex: 1;
+  min-height: 64px;
+  border: 2px solid var(--color-primary);
+  border-radius: 999px;
+  font: 800 18px var(--font-base);
+  cursor: pointer;
+}
+.cancelBtn {
+  background: transparent;
+  color: var(--color-primary);
+}
+.finishBtn {
+  background: var(--color-primary);
+  color: #fff;
+}
+.cancelBtn:focus-visible,
+.finishBtn:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+.cancelBtn:disabled,
+.finishBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ===== 좁은 화면 ===== */
+@media (max-width: 1000px) {
+  .page {
+    padding: 0 20px 48px;
+  }
+  .title {
+    font-size: 34px;
+  }
+  .layout {
+    grid-template-columns: 1fr;
+  }
 }

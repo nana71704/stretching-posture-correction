@@ -1,0 +1,48 @@
+.ring {
+  position: relative;
+  width: 200px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+.ring svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform: rotate(-90deg); /* 12시 방향부터 채우기 */
+}
+.track,
+.fill {
+  fill: none;
+  stroke-width: 18;
+}
+.track {
+  stroke: var(--color-soft);
+}
+.fill {
+  stroke: var(--color-correct);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.1s linear;
+}
+.fill.done {
+  stroke: #65a30d; /* 목표 달성: 연두색 */
+}
+.text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin: 0;
+  white-space: nowrap;
+  transform: translate(-50%, -50%); /* 링 한가운데 */
+}
+.text strong {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+.text span {
+  font-size: 16px;
+  color: var(--color-sub);
+}
