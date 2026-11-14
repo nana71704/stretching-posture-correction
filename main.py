@@ -1,7 +1,8 @@
+from pose_evaluator import evaluate_neck_shoulder_stretch
 """
 동작인식 파이프라인 실행/확인용 스크립트
 
-  python main.py                      # 기본 웹캠
+  python main.py                     # 기본 웹캠
   python main.py --source video.mp4   # 비디오 파일
   python main.py --save out.jsonl     # 프레임별 관절 데이터를 JSON Lines로 저장
   python main.py --print              # 콘솔에 관절 좌표 출력
@@ -41,6 +42,17 @@ def main():
             fps = 1.0 / max(now - prev, 1e-6)
             prev = now
 
+            # 관절 데이터가 감지되었을 때 자세 판정 함수 호출
+            if data["detected"] and joints is not None:
+                eval_result = evaluate_neck_shoulder_stretch(joints)
+                score = eval_result["score"]
+                is_good = eval_result["is_good"]
+                feedback_text = eval_result["feedback"][0]
+            else:
+                score = 0
+                is_good = False
+                feedback_text = "사람이 감지되지 않았습니다."
+
             if out:
                 out.write(json.dumps(data, ensure_ascii=False) + "\n")
             if args.print and data["detected"]:
@@ -51,6 +63,12 @@ def main():
             if not args.no_window:
                 draw_joints(frame, joints)
                 status = "DETECTED" if data["detected"] else "NO PERSON"
+                
+                # 화면에 점수와 피드백 텍스트 띄우기
+                color = (0, 255, 0) if is_good else (0, 0, 255)
+                cv2.putText(frame, f"Score: {score} | {feedback_text}", (10, 70),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+
                 cv2.putText(frame, f"FPS {fps:4.1f}  {status}", (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
                 cv2.imshow("Motion Recognition", frame)
